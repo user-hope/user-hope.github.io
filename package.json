@@ -1,0 +1,25 @@
+{
+  "name": "user-hope.github.io",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vuepress dev docs",
+    "build": "vuepress build docs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@vuepress/client": "2.0.0-beta.68",
+    "chat.js": "^1.0.2",
+    "katex": "^0.16.9",
+    "mermaid": "^10.6.1",
+    "vue": "^3.3.8",
+    "vuepress": "2.0.0-beta.68",
+    "vuepress-plugin-search-pro": "2.0.0-beta.250"
+  },
+  "dependencies": {
+    "vuepress-theme-hope": "2.0.0-beta.250"
+  }
+}
