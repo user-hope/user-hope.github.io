@@ -1,5 +1,6 @@
 import { hopeTheme } from 'vuepress-theme-hope';
 import NavBar from './vuepress.navbar';
+import SideBar from './vuepress.sidebar';
 
 /**
  * theme 插件扩展
@@ -14,7 +15,7 @@ export default hopeTheme({
     /**
      * icon 方式
      */
-    iconAssets: 'fontawesome',
+    iconAssets: '/js/fontawesome.js',
     plugins: {
         prismjs: {
             light: 'one-light',
@@ -31,6 +32,7 @@ export default hopeTheme({
         // }
     },
     navbar: NavBar,
+    sidebar: SideBar,
     /**
      * 是否显示全屏按钮
      */
