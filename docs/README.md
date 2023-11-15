@@ -31,3 +31,7 @@ pnpm i
 # run
 pnpm run dev
 ```
+
+### 发布
+
+文档使用 github actions 自动发布, 只需要将代码提交到 master 分支即可; 具体请查看 [github actions](https://docs.github.com/zh/actions)

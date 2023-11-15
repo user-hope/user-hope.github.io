@@ -12,7 +12,6 @@
   "license": "ISC",
   "devDependencies": {
     "@vuepress/client": "2.0.0-beta.68",
-    "chat.js": "^1.0.2",
     "katex": "^0.16.9",
     "mermaid": "^10.6.1",
     "vue": "^3.3.8",
@@ -20,6 +19,7 @@
     "vuepress-plugin-search-pro": "2.0.0-beta.250"
   },
   "dependencies": {
-    "vuepress-theme-hope": "2.0.0-beta.250"
+    "vuepress-theme-hope": "2.0.0-beta.250",
+    "chat.js": "^1.0.2"
   }
 }
