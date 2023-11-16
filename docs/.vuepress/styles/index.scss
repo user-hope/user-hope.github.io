@@ -1,0 +1,19 @@
+@import "palette";
+@import "config";
+
+:root {
+    --font-family: variable-exists($font-family);
+    --font-family-heading: variable-exists($font-family-heading);
+    --content-width: 980px;
+}
+
+/**
+ 复写主题的样式
+ */
+.vp-sidebar {
+    padding-inline-start: 0;
+}
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    border-bottom: unset;
+}

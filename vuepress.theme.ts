@@ -8,6 +8,7 @@ import SideBar from './vuepress.sidebar';
  */
 
 export default hopeTheme({
+    repo: 'https://github.com/user-hope/user-hope.github.io',
     /**
      * 色系切换时候的提示
      */
@@ -44,5 +45,16 @@ export default hopeTheme({
     /**
      * 是否纯净模式
      */
-    pure: true
+    pure: true,
+    /**
+     * 导航栏布局
+     */
+    navbarLayout: {
+        start: ['Brand'],
+        end: ['Links', 'Repo', 'Outlook', 'Search'],
+    },
+    /**
+     * 路径导航器(面包屑)
+     */
+    breadcrumb: false
 })

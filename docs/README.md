@@ -5,7 +5,7 @@ heroText: 欢迎
 heroFullScreen: true
 actions:
   - text: github
-    link: /guide/
+    link: https://github.com/user-hope/user-hope.github.io
     type: primary
 footer: MIT Licensed | Copyright © 2018-present Hope
 ---
@@ -21,6 +21,7 @@ footer: MIT Licensed | Copyright © 2018-present Hope
 
 - [vuepress 配置](https://v2.vuepress.vuejs.org/zh/guide/configuration.html)
 - [vuepress 主题](https://theme-hope.vuejs.press/zh/guide/feature/copy-code.html#%E4%BD%BF%E7%94%A8)
+- [文档字体](https://fonts.google.com/)
 
 ### 启动
 

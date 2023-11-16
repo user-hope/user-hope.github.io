@@ -87,17 +87,24 @@ $sidebar-width: 18rem !default;
 $sidebar-mobile-width: 16rem !default;
 
 // 主要内容的宽度
-$content-width: 780px !default;
+$content-width: 980px !default;
 $home-page-width: 1160px !default;
 
 // 普通文本上使用的字体
-$font-family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", STHeiti, "Microsoft YaHei", SimSun, sans-serif' !default;
-$font-family-heading: 'Georgia Pro, Crimson, Georgia, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", STHeiti, "Microsoft YaHei", SimSun, sans-serif' !default;
-
-// 代码上使用的字体
+//$font-family: '"Microsoft YaHei", SimSun, sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", STHeiti' !default;
+//
+//// 标题上使用的字体
+//$font-family-heading: '"Microsoft YaHei", SimSun, sans-serif, Georgia Pro, Crimson, Georgia, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", STHeiti' !default;
+//
+//// 代码上使用的字体
 $font-family-mono: 'Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace' !default;
+
+$font-family: "Microsoft YaHei" !default;
+$font-family-heading: "Microsoft YaHei" !default;
+
+// 代码块中的行号宽度
 $line-numbers-width: 2.5rem !default;
 
 // 用于颜色的过渡
-$color-transition: "0.3s ease" !default;
-$transform-transition: "0.3s ease" !default;
+$color-transition: "0.25s ease" !default;
+$transform-transition: "0.25s ease" !default;
