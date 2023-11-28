@@ -18,8 +18,11 @@ export default hopeTheme({
      */
     iconAssets: '/js/fontawesome.js',
     plugins: {
+        /**
+         * https://github.com/PrismJS/prism-themes
+         */
         prismjs: {
-            light: 'one-light',
+            light: 'coldark-dark',
             dark: 'one-dark',
         },
         mdEnhance: {

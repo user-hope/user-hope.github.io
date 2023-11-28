@@ -16,6 +16,10 @@ const odooSidebars: SidebarObjectOptions = {
                 {
                     text: '一. 环境搭建',
                     link: '环境搭建.md'
+                },
+                {
+                    text: '二. 第一个模块',
+                    link: '第一个模块.md'
                 }
             ]
         }
