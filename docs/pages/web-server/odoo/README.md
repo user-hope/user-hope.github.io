@@ -1,5 +1,5 @@
 ---
-headerDepth: 0
+headerDepth: 3
 next:
   link: /pages/web-server/odoo/section-01/环境搭建.md
 ---

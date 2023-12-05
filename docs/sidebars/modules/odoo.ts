@@ -20,6 +20,18 @@ const odooSidebars: SidebarObjectOptions = {
                 {
                     text: '二. 第一个模块',
                     link: '第一个模块.md'
+                },
+                {
+                    text: '三. 基本字段',
+                    link: '基本字段.md'
+                },
+                {
+                    text: '四. 基本视图',
+                    link: '基本视图.md'
+                },
+                {
+                    text: '五. API',
+                    link: 'API.md'
                 }
             ]
         }
