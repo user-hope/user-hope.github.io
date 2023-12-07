@@ -32,7 +32,11 @@ const odooSidebars: SidebarObjectOptions = {
                 {
                     text: '五. API',
                     link: 'API.md'
-                }
+                },
+                {
+                    text: '六. 模型',
+                    link: '模型.md'
+                },
             ]
         }
     ]

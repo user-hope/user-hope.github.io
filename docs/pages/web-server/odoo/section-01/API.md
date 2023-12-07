@@ -3,7 +3,7 @@ headerDepth: 3
 prev:
   link: /pages/web-server/odoo/section-01/基本视图.md
 next:
-  link: /pages/web-server/odoo/section-01/API.md
+  link: /pages/web-server/odoo/section-01/模型.md
 ---
 
 ## API
@@ -605,6 +605,34 @@ user_exist = self.env['res.users'].sudo().browse(user_id).exists();
 - `Model.ensure_one()`: 验证当前记录集是否包含一条记录;
 - `Model.name_get()`: 返回一个包含记录 ID 和记录名称的元组列表; 通常用于在界面上显示记录时, 系统需要展示记录的名称而不是 ID;
 
+
+### Func
+
+odoo 的模型上还提供了一些数据集处理的函数, 能够快捷方便的对数据进行处理; 
+- `Model.filtered(func)`: 按照条件对数据进行过滤;
+```python
+records = self.env['sale.order'].search([])
+
+# 只保留 amount_total > 1000 的数据;
+filtered_records = records.filtered(lambda r: r.amount_total > 1000)
+
+# 只保留公司客户
+companys = self.env['res.partner'].search([]).filtered("partner_id.is_company")
+```
+
+- `Model.mapped(func)`: 可以方便地提取指定字段的数值并进行处理; 返回新的 map
+```python
+records = self.env['sale.order'].search([])
+
+# 获取所有的 sale.order 记录的名称
+order_names = records.mapped('name')
+```
+
+- `Model.sorted(key=None, reverse=False)`: 对数据集进行重新排序;
+```python
+records = self.env['sale.order'].search([])
+sorted_orders = records.sorted('date_order')
+```
 
 
 
