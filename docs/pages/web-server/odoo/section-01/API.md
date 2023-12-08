@@ -184,7 +184,7 @@ def _unlink_if_partner_in_account_move(self):
     if moves:
         raise UserError(_("The partner cannot be deleted because it is used in Accounting"))
 ```
-> 用 `ondelete` 修饰的方法应在某些条件下引发错误, 按照规范, 应该将方法命名为 `_unlink_if_<condition>` 或者 `_unlik_except_<not_condition>`
+> 用 `ondelete` 修饰的方法应在某些条件下引发错误, 按照规范, 应该将方法命名为 `_unlink_if_<condition>` 或者 `_unlink_except_<not_condition>`
 
 ### @api.returns
 
@@ -209,23 +209,23 @@ def copy(self, default=None):
 `Environment` 对象代表了当前事务的数据库会话和模型记录集合; 它提供了访问数据库中的记录, 执行搜索, 更新和创建新记录的方法; `Environment` 对象还包含了当前事务中模型的元数据信息, 如字段定义, 操作权限等;
 
 该环境存储 ORM 的各种上下文的数据:
-- `cr`: 当前环境使用的数据库的指针;
-- `uid`: 当前用户的 id;
-- `context`: 当前上下文字典;
-- `su`: 是否是在超级用户模式;
-- `lang`: 当前环境中使用的语言;
-- `user`: `res.users` 的当前用户的实例;
-- `company`: 当前用户的所属公司的实例;
-- `companies`: 当前用户已启用的公司的记录集;
+- **`cr`**: 当前环境使用的数据库的指针;
+- **`uid`**: 当前用户的 id;
+- **`context`**: 当前上下文字典;
+- **`su`**: 是否是在超级用户模式;
+- **`lang`**: 当前环境中使用的语言;
+- **`user`**: `res.users` 的当前用户的实例;
+- **`company`**: 当前用户的所属公司的实例;
+- **`companies`**: 当前用户已启用的公司的记录集;
 
 `env` 环境中还提供了一些便捷的方法:
-- `env.ref(xml_id, raise_if_not_found=True)`: 获取 `xml_id` 的 id;
-- `env.is_superuser()`: 是否是在超级用户模式;
-- `env.is_admin()`: 是否有用户组访问权限, 或是否是超级用户模式;
-- `env.is_system()`: 是否有 `setting` 访问权限, 或者是否是超级用户模式;
+- **`env.ref(xml_id, raise_if_not_found=True)`**: 获取 `xml_id` 的 id;
+- **`env.is_superuser()`**: 是否是在超级用户模式;
+- **`env.is_admin()`**: 是否有用户组访问权限, 或是否是超级用户模式;
+- **`env.is_system()`**: 是否有 `setting` 访问权限, 或者是否是超级用户模式;
 
 改变环境变量的方法, odoo 的环境变量是不可以直接修改的, 需要使用以下方法对模型下的静态方法进行修改: 
-- `Model.width_context([context][, **overrides])`: 扩展上下文或合并覆盖当前的上下文; 
+- **`Model.width_context([context][, **overrides])`**: 扩展上下文或合并覆盖当前的上下文; 
 ```python
 # current context is {'key1': True}
 
@@ -235,7 +235,7 @@ r2 = records.with_context({}, key2=True)
 r2 = records.with_context(key2=True)
 # -> r2._context is {'key1': True, 'key2': True}
 ```
-- `Model.with_user(user)`: 在非超级用户模式下, 返回附加到给定用户的此记录集的新版本;
+- **`Model.with_user(user)`**: 在非超级用户模式下, 返回附加到给定用户的此记录集的新版本;
 ```python
 from odoo import SUPERUSER_ID, api, fields, models, _
 
@@ -250,9 +250,9 @@ def action_confirm(self):
             order.sale_order_template_id.mail_template_id.send_mail(order.id)
     return res
 ```
-- `Model.with_company(company)`: 返回指定公司下的记录集;
-- `Model.with_env(env)`: 可以确保在特定的环境中处理记录, 有助于避免环境上下文的混淆和数据的隔离;
-- `Model.sudo([flag=True])`: 返回启用/禁用超级用户模式的此记录集的新实例; 使用 `sudo` 不会更改当前用户, 只是跳过部分访问权的限制;
+- **`Model.with_company(company)`**: 返回指定公司下的记录集;
+- **`Model.with_env(env)`**: 可以确保在特定的环境中处理记录, 有助于避免环境上下文的混淆和数据的隔离;
+- **`Model.sudo([flag=True])`**: 返回启用/禁用超级用户模式的此记录集的新实例; 使用 `sudo` 不会更改当前用户, 只是跳过部分访问权的限制;
 
 
 ## SQL 执行
@@ -284,7 +284,7 @@ ids = [row[0] for row in self.env.cr.fetchall()]
 ```
 在每次 sql 查询之前, 都必须刷新该查询所需的数据; 刷新数据有三个级别, 每个级别都有自己的 api; 可以刷新所有内容, 模型的所有记录 或 某些特定的记录; 因为延迟更新通常会提高性能, 所以我们建议在刷新时要特别注意:
 
-- `env.flush_all()`: 将所有挂起的计算和更新刷新到数据库;
+- **`env.flush_all()`**: 将所有挂起的计算和更新刷新到数据库;
 ```python{7}
 @api.model_create_multi
 def create(self, vals_list):
@@ -295,8 +295,8 @@ def create(self, vals_list):
     self.env.flush_all()
     return events 
 ```
-- `Model.flush_model(fnames=None)`: 刷新 `self` 当前模型上面的指定字段的数据;
-- `Model.flush_recordset(fnames=None)`: 自行处理挂起的计算和记录上的数据库更新. 当给定参数时, 该方法保证至少将记录自身上的给定字段刷新到数据库中;
+- **`Model.flush_model(fnames=None)`**: 刷新 `self` 当前模型上面的指定字段的数据;
+- **`Model.flush_recordset(fnames=None)`**: 自行处理挂起的计算和记录上的数据库更新. 当给定参数时, 该方法保证至少将记录自身上的给定字段刷新到数据库中;
 
 由于模型使用相同的游标, 而环境中包含各种缓存, 因此在原始 `sql` 中更改数据库时, 这些缓存必须无效; 在 SQL 中使用 `CREATE` , `UPDATE` 或 `DELETE` 时, 有必要清除缓存, 而不是 `SELECT`;
 ```python
@@ -311,7 +311,7 @@ self.env['model'].invalidate_model(['state'])
 
 就像刷新一样, 可以使整个缓存, 模型的所有记录的缓存或特定记录的缓存无效; 甚至可以使模型的某些记录或所有记录上的特定字段无效. 由于缓存通常会提高性能, 因此我们建议在无效时进行特定处理;
 
-- `env.invalidate_all(flush=True)`: 使所有的记录缓存都无效;
+- **`env.invalidate_all(flush=True)`**: 使所有的记录缓存都无效;
 ```python{14}
 @api.model
 def schedule_communications(self, autocommit=False):
@@ -334,7 +334,7 @@ def schedule_communications(self, autocommit=False):
     return True 
 ```
 
-- `Model.invalidate_model(fnames=None, flush=True)`: 当前模型上缓存的值与数据库的值不在对应的时候, 使当前模型上的所有的记录缓存无效;
+- **`Model.invalidate_model(fnames=None, flush=True)`**: 当前模型上缓存的值与数据库的值不在对应的时候, 使当前模型上的所有的记录缓存无效;
 ```python{14}
 def write(self, vals):
     self._sanitize_vals(vals)
@@ -359,7 +359,7 @@ def write(self, vals):
         ])
     return res 
 ```
-- `Model.invalidate_recordset(fnames=None, flush=True)`: 当缓存的值不再与数据库值对应时, 使 `self`当前模型中记录的缓存无效; 如果给定了参数, 则只有 `self` 上的给定字段从缓存中无效;
+- **`Model.invalidate_recordset(fnames=None, flush=True)`**: 当缓存的值不再与数据库值对应时, 使 `self`当前模型中记录的缓存无效; 如果给定了参数, 则只有 `self` 上的给定字段从缓存中无效;
 
 
 上述方法使缓存和数据库保持一致. 然而, 如果已在数据库中修改了计算字段相关性, 则必须通知要重新计算的计算字段的模型; 框架唯一需要知道的是哪些字段在哪些记录上发生了更改;
@@ -378,7 +378,7 @@ records.modified(['state'])
 ```
 
 有很多方法可以清楚的知道哪些记录被修改了, 在上面的例子中我们利用 `postgresql` 的 `RETURNING` 子句来检索信息, 而不需要进行额外的查询; 
-- `Model.modified(fnames, create=False, before=False)`: 通知自己将修改或已经修改字段; 这将在必要时使缓存无效, 并准备重新计算相关存储字段;
+- **`Model.modified(fnames, create=False, before=False)`**: 通知自己将修改或已经修改字段; 这将在必要时使缓存无效, 并准备重新计算相关存储字段;
 
 ```python{3,4,11}
 def _ondelete_stock_moves(self):
@@ -400,7 +400,7 @@ def _ondelete_stock_moves(self):
 
 ### Create/Update
 
-- `Model.create(vals_list) -> records`: 为模型创建新的记录; 返回值是当前模型的实例;
+- **`Model.create(vals_list) -> records`**: 为模型创建新的记录; 返回值是当前模型的实例;
 ```python
 user = self.env['res.users'].create({
     'name': 'I am accountman!',
@@ -430,7 +430,7 @@ records = self.env['res.currency.rate'].create([
 ]) 
 ```
 
-- `Model.copy(default=None)`: 重复记录使用默认值自我更新;
+- **`Model.copy(default=None)`**: 重复记录使用默认值自我更新;
 ```python
 attachment = self.env['ir.attachment'].copy({
     'res_model': 'hr.expense', 
@@ -438,7 +438,7 @@ attachment = self.env['ir.attachment'].copy({
 }) 
 ```
 
-- `Model.default_get(fields_list) -> default_values`: 返回 `fields_list` 中字段的默认值, 默认值由上下文, 用户默认值和模型本身决定;
+- **`Model.default_get(fields_list) -> default_values`**: 返回 `fields_list` 中字段的默认值, 默认值由上下文, 用户默认值和模型本身决定;
 ```python
 defaults = self.env['account.tax'].with_company(self).default_get([
     'invoice_repartition_line_ids', 
@@ -446,12 +446,12 @@ defaults = self.env['account.tax'].with_company(self).default_get([
 ]) 
 ```
 
-- `Model.name_create(name) -> record`: 通过调用 `create()` 方法创建一个新的记录, 只提供一个值: 新纪录的显示名称; 
+- **`Model.name_create(name) -> record`**: 通过调用 `create()` 方法创建一个新的记录, 只提供一个值: 新纪录的显示名称; 
 ```python
 category_id = self.env['uom.category'].with_context({}).name_create('Unsorted/Imported Units') 
 ```
 
-- `Model.write(vals)`: 使用提供的值更新当前的所有记录;
+- **`Model.write(vals)`**: 使用提供的值更新当前的所有记录;
 ```python
 partner = self.env['res.partner'].browse(1)
 
@@ -464,7 +464,7 @@ partner.write({
 
 ### Search/Read
 
-- `Model.browse([ids]) -> records`: 返回值为查询的 id 的记录集的实例; 
+- **`Model.browse([ids]) -> records`**: 返回值为查询的 id 的记录集的实例; 
 ```python
 # 查询一条记录
 partner = self.env['res.partner'].browse(7)
@@ -473,12 +473,12 @@ partner = self.env['res.partner'].browse(7)
 partners = self.env['res.partner'].browse([7, 18, 12])
 ```
 
-- `Model.search(domain[, offset=0][, limit=None][, order=None][, count=False])`: 根据条件查询当前模型下面的所有的记录;
+- **`Model.search(domain[, offset=0][, limit=None][, order=None][, count=False])`**: 根据条件查询当前模型下面的所有的记录;
 ```python
 users = self.env['res.users'].search([('name', '=', 'xiangyuan')])
 ```
 
-- `Model.search_count(domain) -> int`: 返回当前模型中与 domain 匹配的记录集的数量;
+- **`Model.search_count(domain) -> int`**: 返回当前模型中与 domain 匹配的记录集的数量;
 ```python
 leads = self.env['crm.lead'].search_count([
     ('type', '=', 'opportunity'),
@@ -489,24 +489,24 @@ leads = self.env['crm.lead'].search_count([
 ])
 ```
 
-- `Model.name_search(name='', args=None, operator='ilike', limit=100) -> records`: 通过给定运算符搜索显示名称与给定名称匹配的记录;
+- **`Model.name_search(name='', args=None, operator='ilike', limit=100) -> records`**: 通过给定运算符搜索显示名称与给定名称匹配的记录;
 ```python
 product_names = self.env['product.template'].name_search(name='PTN', operator='not ilike') 
 ```
 
-- `Model.read([fields])`: 读取当前记录中的请求字段;
+- **`Model.read([fields])`**: 读取当前记录中的请求字段;
 ```python
 mail_values = self.env['mail.mail'].read(['id', 'email_from', 'mail_server_id'])
 ```
 
-- `Model.read_group(domain, fields, groupby, offset=0, limit=None, orderby=False, lazy=True)`: 主要用于在 `Odoo` 模型中执行类似 `SQL` 中的 `GROUP BY` 操作; 其中:
-    - `domain`: 过滤记录的条件;
-    - `fields`: 要过滤的字段列表;
-    - `groupby`: 要分组的字段列表;
-    - `offset`: 偏移量;
-    - `limit`: limit 结果集限制条数;
-    - `orderby`: 结果排序方式
-    - `lazy`: 如果为True, 则仅在获取时计算聚合值
+- **`Model.read_group(domain, fields, groupby, offset=0, limit=None, orderby=False, lazy=True)`**: 主要用于在 `Odoo` 模型中执行类似 `SQL` 中的 `GROUP BY` 操作; 其中:
+    - **`domain`**: 过滤记录的条件;
+    - **`fields`**: 要过滤的字段列表;
+    - **`groupby`**: 要分组的字段列表;
+    - **`offset`**: 偏移量;
+    - **`limit`**: limit 结果集限制条数;
+    - **`orderby`**: 结果排序方式
+    - **`lazy`**: 如果为True, 则仅在获取时计算聚合值
 ```python
 from dateutil.relativedelta import relativedelta
 
@@ -525,7 +525,7 @@ incoming_moves = self.env['stock.move.line'].read_group([
 
 > `fields` 下面提供的这些方法应该也归属于 `Search/Read`, 同在模型下面的读取/查找数据, 只是这些 api 只用于操作 fields;
 
-- `Model.fields_get([allfields][, attributes])`: 返回每个字段的定义, 返回值是一个字典;
+- **`Model.fields_get([allfields][, attributes])`**: 返回每个字段的定义, 返回值是一个字典;
 ```python
 fields = self.env['sale.order'].fields_get(['trigger', 'state'], attributes=('string', 'type', 'selection', 'currency_field'))
 ```
@@ -533,31 +533,31 @@ fields = self.env['sale.order'].fields_get(['trigger', 'state'], attributes=('st
 ### Search domains
 
 `domain` 表达式的写法, 标准的 `domain` 为一个包含多个 `(field_name, operator, value)` 元组的 `list`, 其中:
-- `field_name`: 字段名称, 字符类型, 可以为基本字段, 也可以是关联字段; eg: `'street'` or `'partner_id.country'`;
-- `operator`: 运算符; 有效运算符有:
-    - `=`: 等于;
-    - `!=`: 不等于;
-    - `>`: 大于;
-    - `>=`: 大于等于;
-    - `<`: 小于;
-    - `<=`: 小于等于;
-    - `=?`: unset 或 等于; (如果值为 None 或者是 False, 则返回 True, 否则表现为 `=` );
-    - `=like`: 一般用于字符模糊匹配; 其中 `_` 代表任何单个字符, `%` 代表任何零个或多个字符的字符串; eg: `[('name', '=like', 'delivery_%')]`;
-    - `like`: 与 sql 里面的 `like` 相似; 用于对值进行模糊匹配; eg: `[('code', 'like', '2607%')]`, `[('code', 'like', '%2607%')]`;
-    - `not like`: 与 `like` 取反;
-    - `ilike`: 不区分大小写的模糊匹配; eg: `[('name', 'ilike', 'test%')]` 表示匹配字段以 `test` 开头的字符串, 不区分大小写;
-    - `not ilike`: 与 `ilike` 取反;
-    - `=ilike`: 与 `=like` 一致, 不区分大小写;
-    - `in`: 等于值中的任何一个选项, 值应该为 `list`; eg: `[('id', 'in', [7, 8, 12])]`;
-    - `not in`: `in` 取反;
-    - `child_of`: 是记录集的子级; 值可以是一项, 也可以是多项; 遵循模型中定义的 `_parent_name` 字段; eg: `[('order.partner_id', 'child_of', partner.ids)]`;
-    - `parent_of`: 是记录集的父级; 值可以是一项, 也可以是多项; 遵循模型中定义的 `_parent_name` 字段;
-- `value`: 值域;
+- **`field_name`**: 字段名称, 字符类型, 可以为基本字段, 也可以是关联字段; eg: `'street'` or `'partner_id.country'`;
+- **`operator`**: 运算符; 有效运算符有:
+    - **`=`**: 等于;
+    - **`!=`**: 不等于;
+    - **`>`**: 大于;
+    - **`>=`**: 大于等于;
+    - **`<`**: 小于;
+    - **`<=`**: 小于等于;
+    - **`=?`**: unset 或 等于; (如果值为 None 或者是 False, 则返回 True, 否则表现为 `=` );
+    - **`=like`**: 一般用于字符模糊匹配; 其中 `_` 代表任何单个字符, `%` 代表任何零个或多个字符的字符串; eg: `[('name', '=like', 'delivery_%')]`;
+    - **`like`**: 与 sql 里面的 `like` 相似; 用于对值进行模糊匹配; eg: `[('code', 'like', '2607%')]`, `[('code', 'like', '%2607%')]`;
+    - **`not like`**: 与 `like` 取反;
+    - **`ilike`**: 不区分大小写的模糊匹配; eg: `[('name', 'ilike', 'test%')]` 表示匹配字段以 `test` 开头的字符串, 不区分大小写;
+    - **`not ilike`**: 与 `ilike` 取反;
+    - **`=ilike`**: 与 `=like` 一致, 不区分大小写;
+    - **`in`**: 等于值中的任何一个选项, 值应该为 `list`; eg: `[('id', 'in', [7, 8, 12])]`;
+    - **`not in`**: `in` 取反;
+    - **`child_of`**: 是记录集的子级; 值可以是一项, 也可以是多项; 遵循模型中定义的 `_parent_name` 字段; eg: `[('order.partner_id', 'child_of', partner.ids)]`;
+    - **`parent_of`**: 是记录集的父级; 值可以是一项, 也可以是多项; 遵循模型中定义的 `_parent_name` 字段;
+- **`value`**: 值域;
 
 可以使用前缀形式的逻辑运算符组合 domain 条件, 其中:
-- `&`: 逻辑 and; 用于组合多个条件;
-- `|`: 逻辑 or; 
-- `!`: 逻辑 not;
+- **`&`**: 逻辑 and; 用于组合多个条件;
+- **`|`**: 逻辑 or; 
+- **`!`**: 逻辑 not;
 
 > 大多数情况下, `!` 是很少使用的, 因为运算符中的 `!=`, `>=` 基本上能够满足多数情况;
 
@@ -593,23 +593,23 @@ odoo 的 domain 使用的是 **波兰表示法**:  运算波兰表达式时, 无
 
 ### Unlink
 
-- `Model.unlink()`: 删除当前记录;
+- **`Model.unlink()`**: 删除当前记录;
 
 ### Record API
 
-- `Model.ids`: 返回当前模型所有的记录集的 id;
-- `Model.exists() -> records`: 返回 self 中存在的记录的子集;
+- **`Model.ids`**: 返回当前模型所有的记录集的 id;
+- **`Model.exists() -> records`**: 返回 self 中存在的记录的子集;
 ```python
 user_exist = self.env['res.users'].sudo().browse(user_id).exists(); 
 ```
-- `Model.ensure_one()`: 验证当前记录集是否包含一条记录;
-- `Model.name_get()`: 返回一个包含记录 ID 和记录名称的元组列表; 通常用于在界面上显示记录时, 系统需要展示记录的名称而不是 ID;
+- **`Model.ensure_one()`**: 验证当前记录集是否包含一条记录;
+- **`Model.name_get()`**: 返回一个包含记录 ID 和记录名称的元组列表; 通常用于在界面上显示记录时, 系统需要展示记录的名称而不是 ID;
 
 
 ### Func
 
 odoo 的模型上还提供了一些数据集处理的函数, 能够快捷方便的对数据进行处理; 
-- `Model.filtered(func)`: 按照条件对数据进行过滤;
+- **`Model.filtered(func)`**: 按照条件对数据进行过滤;
 ```python
 records = self.env['sale.order'].search([])
 
@@ -620,7 +620,7 @@ filtered_records = records.filtered(lambda r: r.amount_total > 1000)
 companys = self.env['res.partner'].search([]).filtered("partner_id.is_company")
 ```
 
-- `Model.mapped(func)`: 可以方便地提取指定字段的数值并进行处理; 返回新的 map
+- **`Model.mapped(func)`**: 可以方便地提取指定字段的数值并进行处理; 返回新的 map
 ```python
 records = self.env['sale.order'].search([])
 
@@ -628,7 +628,7 @@ records = self.env['sale.order'].search([])
 order_names = records.mapped('name')
 ```
 
-- `Model.sorted(key=None, reverse=False)`: 对数据集进行重新排序;
+- **`Model.sorted(key=None, reverse=False)`**: 对数据集进行重新排序;
 ```python
 records = self.env['sale.order'].search([])
 sorted_orders = records.sorted('date_order')
