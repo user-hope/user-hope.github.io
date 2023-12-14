@@ -634,6 +634,17 @@ records = self.env['sale.order'].search([])
 sorted_orders = records.sorted('date_order')
 ```
 
+## Error Management
+
+odoo 异常模块定义了一些核心异常类型; 
+
+- **`odoo.exceptions.AccessDenied(message='Access Denied')`**: 错误的账号密码;
+- **`odoo.exceptions.AccessError(message)`**: 没有权限读取数据;
+- **`odoo.exceptions.CacheMiss(record, field)`**: 尝试读取刷新缓存中不存在的值;
+- **`odoo.exceptions.MissingError(message)`**: 对已经删除的数据进行 `write` 的时候;
+- **`odoo.exceptions.RedirectWarning(message, action, button_text, additional_context=None)`**: 警告, 可以重定向用户, 而不是简单地显示警告消息;
+- **`odoo.exceptions.UserError(message)`**: 当用户试图做一些在给定记录的当前状态下没有意义的事情时候; 在语义上与通用的 400 http 状态码相似;
+- **`odoo.exceptions.ValidationError(message)`**: 校验约束时候的错误;
 
 
 

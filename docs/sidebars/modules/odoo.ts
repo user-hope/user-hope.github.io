@@ -37,6 +37,22 @@ const odooSidebars: SidebarObjectOptions = {
                     text: '六. 模型',
                     link: '模型.md'
                 },
+                {
+                    text: '七. 数据文件',
+                    link: '数据文件.md'
+                },
+                {
+                    text: '八. 动作',
+                    link: '动作.md'
+                },
+                {
+                    text: '九. Qweb报表',
+                    link: 'Qweb报表.md'
+                },
+                {
+                    text: '十. Manifest',
+                    link: 'Manifest.md'
+                },
             ]
         }
     ]
