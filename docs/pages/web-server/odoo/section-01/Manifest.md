@@ -3,7 +3,7 @@ headerDepth: 4
 prev:
   link: /pages/web-server/odoo/section-01/Qweb报表.md
 next:
-  link: /pages/web-server/odoo/section-01/动作.md
+  link: /pages/web-server/odoo/section-02/权限安全.md
 ---
 ## Module Manifests
 

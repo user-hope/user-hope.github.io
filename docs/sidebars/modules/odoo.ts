@@ -54,6 +54,24 @@ const odooSidebars: SidebarObjectOptions = {
                     link: 'Manifest.md'
                 },
             ]
+        },
+        {
+            text: '第二部分: 进阶技巧',
+            prefix: `${WEBSERVER_ODOO_PREFIX}/section-02/`,
+            children: [
+                {
+                    text: '一. 权限安全',
+                    link: '权限安全.md'
+                },
+                {
+                    text: '二. 控制器',
+                    link: '控制器.md'
+                },
+                {
+                    text: '三. Mixin',
+                    link: 'Mixin.md'
+                }
+            ]
         }
     ]
 }
