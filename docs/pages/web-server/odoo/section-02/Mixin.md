@@ -328,6 +328,137 @@ def _chatbot_post_message(self, chatbot_script, body):
 
 ## 活动追踪
 
+活动是用户应接收像打电话或组织会议这样的文档的动作, 活动自带 `mail` 模块, 它们在 `chatter` 中继承了, 但并未与 `mail.thread` 捆绑在一起; 活动是 `mail.activity` 类的记录, 它拥有类型 `mail.activity.type`, 名称, 描述, 计划时间等; 进行中的活动在 `chatter` 控件中的消息历史内可见;
+
+可以对记录 (分别为 `mail_activity` 和 `kanban_activity` 控件) 的对象和具体模块在表单视图和看板视图中使用 `activity_ids` 来展示它们使用 `mail.activity.mixin` 类集成的活动;
+
+例如给我们的 book 模型添加如下 `mixin`:
+
+```python{8}
+from odoo.exceptions import ValidationError
+from odoo import models, fields, api
+
+
+class Book(models.Model):
+    _name = 'library.book'
+    _description = 'Book'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
+
+    # 图书名称
+    name = fields.Char('Title', required=True, tracking=True)
+    ...
+```
+然后需要在视图中添加 `activity_ids` 字段展示:
+
+```python{21}
+<form string="Book">
+    <header>
+        <button name="button_check_isbn" type="object" string="Check ISBN" />
+        <button name="button_post_comment" type="object" string="Message Comment" />
+        <button name="button_message_subscribe" type="object" string="Add Subscribe" />
+    </header>
+    <sheet>
+        <group>
+            <field name="name" />
+            <field name="author_ids" widget="many2many_tags" />
+            <field name="publisher_id" />
+            <field name="date_published" />
+            <field name="isbn" />
+            <field name="active" />
+            <field name="cover" widget="image" />
+        </group>
+    </sheet>
+
+    <div class="oe_chatter">
+        <field name="message_follower_ids" widget="mail_followers"/>
+        <field name="activity_ids" widget="mail_activity"/>
+        <field name="message_ids" widget="mail_thread"/>
+    </div>
+</form>
+```
+`form` 视图中就会出现活动的页签, 点击页签, 可以为当前记录创建一条活动记录;
+
+![activities](/images/odoo/S12/activity_plan.png)
+
+## 网站功能
+
+除了管理端提供的这些常用的 `Mixin` 之外, 还有一些网站使用的 `Mixin` 类, 用来快速扩展网站的功能;
+
+### 访客追踪
+
+`utm.mixin` 类可用于追踪通过指定资源链接中的参数来跟踪在线营销/传播活动, `utm.mixin` 向模型添加了 3 个字段:
+- **`campaign_id`**: `many2one` 类型, 关联模型为 `utm.campaign`; (如 Christmas_Special, Fall_Collection等)
+- **`source_id`**: `many2one` 类型, 关联模型为 `utm.source`; (如搜索引擎、邮件列表等)
+- **`medium_id`**: `many2one` 类型, 关联模型为 `utm.medium`; (如Snail Mail, e-Mail, 社交网络更新等)
+
+这些关联的 `many2one` 都有一个 `name` 字段, 它只是为了区分活动名称, 没有其他的特定的行为;
+
+在客户通过 [`url`](https://www.odoo.com/zh_CN?campaign_id=mixin_talk&source_id=www.odoo.com&medium_id=website)中所设置的参数访问网站时; 就会在访问者的网站中为这些参数设置了三个 cookie;
+
+一旦从网站创建了继承自 `utm.mixin` 的数据记录, `utm.mixin` 代码就会启动并且从 `cookie` 中取值将它们设置到当前创建的记录中, 完成之后, 我们可以定义报表和视图时 就可以使用这三个字段的值;
+
+例如 crm 的市场营销模块: 这可以很方便的为我们的记录提供数据来源的展示
+
+![crm-utm-mixin](/images/odoo/S12/crm_utm_mixin.png)
+
+要扩展这一个默认行为, 只需要在简单模型 (能够支持快速创建的模型) 里面添加关联字段, 并继承函数 `tracking_fields()`:
+
+```python
+class UtmMixin(models.AbstractModel):
+
+    _name = 'utm.mixin'
+    _description = 'UTM Mixin'
+
+    campaign_id = fields.Many2one('utm.campaign', 'Campaign')
+    source_id = fields.Many2one('utm.source', 'Source')
+    medium_id = fields.Many2one('utm.medium', 'Medium')
+    
+    def tracking_fields(self):
+        return [
+            # ("URL_PARAMETER", "FIELD_NAME_MIXIN", "NAME_IN_COOKIES")
+            ('utm_campaign', 'campaign_id', 'odoo_utm_campaign'),
+            ('utm_source', 'source_id', 'odoo_utm_source'),
+            ('utm_medium', 'medium_id', 'odoo_utm_medium'),
+        ]
+```
+
+### 网站可见性
+
+您可以轻松地在任何记录上添加网站可见性切换, 虽然这个 `mixin` 很容易手动实现, 但它是继 `mail.thread` 继承之后最常用的; 该 `mixin` 的典型用例是任何具有前端页面的对象; 能够控制页面的可见性使您可以在编辑页面时花些时间, 并且仅在满意时才发布它;
+
+```python
+class BlogPost(models.Model):
+    _name = "blog.post"
+    _description = "Blog Post"
+    _inherit = ['website.published.mixin']
+```
+这个 `mixin` 会向模型中添加下面几个字段:
+- **`website_published`**: 网站的发布状态;
+- **`website_url`**: 访问对象的 url 字段;
+
+需要注意的是 `website_url` 是一个计算字段, 我们可以通过复写 `_compute_website_url` 函数来实现:
+
+```python
+def _compute_website_url(self):
+    for blog_post in self:
+        blog_post.website_url = "/blog/%s" % (log_post.blog_id)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
