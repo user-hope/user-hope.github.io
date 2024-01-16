@@ -3,7 +3,7 @@ headerDepth: 4
 prev:
   link: /pages/web-server/odoo/section-02/控制器.md
 next:
-  link: /pages/web-server/odoo/section-02/Mixin.md
+  link: /pages/web-server/odoo/section-02/国际化.md
 ---
 
 ## Mixin
@@ -426,6 +426,8 @@ class UtmMixin(models.AbstractModel):
 
 您可以轻松地在任何记录上添加网站可见性切换, 虽然这个 `mixin` 很容易手动实现, 但它是继 `mail.thread` 继承之后最常用的; 该 `mixin` 的典型用例是任何具有前端页面的对象; 能够控制页面的可见性使您可以在编辑页面时花些时间, 并且仅在满意时才发布它;
 
+通过使用 `website.published.mixin`, 您可以轻松地为自定义模型添加网站发布相关的功能, 并在网站上管理和展示这些记录的发布状态;
+
 ```python
 class BlogPost(models.Model):
     _name = "blog.post"
@@ -443,21 +445,160 @@ def _compute_website_url(self):
     for blog_post in self:
         blog_post.website_url = "/blog/%s" % (log_post.blog_id)
 ```
+然后就可以在 `xml` 里面给记录添加发布的功能按钮:
 
+```xml{12-16}
+<record id="view_delivery_carrier_form_website_delivery" model="ir.ui.view">
+    <field name="name">delivery.carrier.website.form</field>
+    <field name="model">delivery.carrier</field>
+    <field name="inherit_id" ref="delivery.view_delivery_carrier_form"/>
+    <field name="arch" type="xml">
+        <field name="company_id" position='after'>
+            <field name="website_id" groups="website.group_multi_website" options="{'no_open': True, 'no_create_edit': True}"/>
+        </field>
+        <field name="carrier_description" position='before'>
+            <field name="website_description"  placeholder="Description displayed on the eCommerce and on online quotations."/>
+        </field>
+        <xpath expr="//button[@name='toggle_prod_environment']" position='before'>
+            <button name="website_publish_button" type="object" class="oe_stat_button" icon="fa-globe">
+                <field name="is_published" widget="website_publish_button"/>
+            </button>
+        </xpath>
+    </field>
+</record>
+```
+例如: 网站的付款方式, 如果在这边进行了发布, 网站上就可以选择不同的付款方式了;
 
+![publish](/images/odoo/S12/publish.png)
 
+![published](/images/odoo/S12/published.png)
 
+> 网站端处理的源代码请查看 `addons\website_sale\views\templates.xml` `<template id="payment" name="Payment">`;
 
+操作 `website_publish_button` 在 `mixin` 中定义, 并根据您的对象调整其行为: 如果该类具有有效的 `website_url` 计算函数, 则当用户单击该按钮时将被重定向到前端; 然后, 用户可以直接从前端发布页面. 这确保了在线发布不会意外发生. 如果没有计算函数, 则简单地触发布尔 `website_published`
 
+### 网站元数据
 
+`website.seo.metadata` 允许我们可以轻松的在网站添加元数据;
 
+该 `mixin` 对模型添加了3个字段:
+- **`website_meta_title`**: 允许对页面设置额外标题的 `Char` 字段;
+- **`website_meta_description`**: 包含页面短描述 (有时在搜索引擎结果中使用) 的 `Char` 字段;
+- **`website_meta_keywords`**: 包含一些有助于在搜索引擎更精准分类页面的关键词的 `Char` 字段;
 
+这些字段可以使用编辑器工具栏中的 "升级" 工具在前端进行编辑. 设置这些字段可以帮助搜索引擎更好地索引您的页面. 请注意, 搜索引擎的结果不仅仅基于这些元数据; 最好的搜索引擎优化实践仍然应该是获得可靠来源的参考;
 
+```python{6}
+class BlogPost(models.Model):
+    _name = "blog.post"
+    _description = "Blog Post"
+    _inherit = [
+        'mail.thread', 
+        'website.seo.metadata', 
+        'website.published.multi.mixin',
+        'website.cover_properties.mixin', 
+        'website.searchable.mixin'
+    ]
+    _order = 'id DESC'
+    _mail_post_access = 'read'
+    
+```
 
+![blog-post](/images/odoo/S12/blog_post_meta.png)
 
+## 用户评分
 
+评级 `mixin` 允许发送电子邮件以询问客户评级, 在看板流程中自动过渡并汇总评级的统计数据;
 
+### 对模型添加评分
 
+只需要在模型里面添加 `rating.mixin` 的支持:
+
+```python{7}
+# 需要安装 website_slides 模块
+
+class Channel(models.Model):
+    _name = 'slide.channel'
+    _description = 'Course'
+    _inherit = [
+        'mail.thread', 'rating.mixin',
+        'mail.activity.mixin',
+        'image.mixin',
+        'website.cover_properties.mixin',
+        'website.seo.metadata',
+        'website.published.multi.mixin',
+        'website.searchable.mixin',
+    ]
+    _order = 'sequence, id'
+```
+`mixin` 的行为会适应您的模型:
+- `rating.rating` 记录将链接到模型的 `partner_id` 字段(如果字段存在); 如果使用 `partner_id` 之外的其他字段, 则可以使用函数 `rating_get_partner_id()` 覆盖此行为;
+- `rating.rating` 记录将链接到模型的 `user_id` 字段的合作伙伴(如果字段存在); 如果使用 `user_id` 之外的其他字段, 则可以使用函数 `rating_get_rated_partner_id()` 覆盖此行为; (注意: 该函数必须返回 `res.partner`, 对于 `user_id`系统会自动获取用户的合作伙伴);
+- 聊天历史记录将显示评分事件(如果同时还继承了 `mail.thread`);
+
+![rating-mixin](/images/odoo/S12/rating_mixin.png)
+
+如上, `slide.channel` 模型同时继承了 `mail.thread`, `rating.mixin`;  在管理端就可以看到网站提交的评分数据;
+
+![rating-mixin](/images/odoo/S12/rating_mixin_backend.png)
+
+### 通过 email 发送评分请求
+
+如果希望发送邮件索要评分, 仅需要生成带有评分对象链接的 `e-mail`. 最基本的 `email` 模板像下面这样:
+
+```xml
+<record id="rating_my_model_email_template" model="mail.template">
+    <field name="name">My Model: Rating Request</field>
+    <field name="email_from">${object.rating_get_rated_partner_id().email or '' | safe}</field>
+    <field name="subject">Service Rating Request</field>
+    <field name="model_id" ref="my_module.model_my_model"/>
+    <field name="partner_to" >${object.rating_get_partner_id().id}</field>
+    <field name="auto_delete" eval="True"/>
+    <field name="body_html">
+        <![CDATA[
+            % set access_token = object.rating_get_access_token()
+            <p>Hi,</p>
+            <p>How satsified are you?</p>
+            <ul>
+                <li><a href="/rate/${access_token}/5">Satisfied</a></li>
+                <li><a href="/rate/${access_token}/3">Okay</a></li>
+                <li><a href="/rate/${access_token}/1">Dissatisfied</a></li>
+            </ul>
+        ]]>
+    </field>
+</record>
+```
+然后, 您的客户将收到一封电子邮件, 其中包含指向简单网页的链接, 从而使他们可以提供有关与用户互动的反馈 (包括自由文本反馈消息);
+
+然后, 您可以通过定义评级的动作来轻松地将评级与表单视图集成在一起:
+
+```xml
+<record id="rating_rating_action_my_model" model="ir.actions.act_window">
+    <field name="name">Customer Ratings</field>
+    <field name="res_model">rating.rating</field>
+    <field name="view_mode">kanban,pivot,graph</field>
+    <field name="domain">[('res_model', '=', 'my_module.my_model'), ('res_id', '=', active_id), ('consumed', '=', True)]</field>
+</record>
+
+<record id="my_module_my_model_view_form_inherit_rating" model="ir.ui.view">
+    <field name="name">my_module.my_model.view.form.inherit.rating</field>
+    <field name="model">my_module.my_model</field>
+    <field name="inherit_id" ref="my_module.my_model_view_form"/>
+    <field name="arch" type="xml">
+        <xpath expr="//div[@name='button_box']" position="inside">
+            <button name="%(rating_rating_action_my_model)d" type="action"
+                    class="oe_stat_button" icon="fa-smile-o">
+                <field name="rating_count" string="Rating" widget="statinfo"/>
+            </button>
+        </xpath>
+    </field>
+</record>
+```
+注意评分存在默认视图 (kanban,pivot,graph), 让我们可以对客户评分有一个快速全景视图;
+
+可以在以下模块中找到示例:
+- `project.task`:  在 Project (rating_project)应用中
+- `helpdesk.ticket`: 在Helpdesk (helpdesk – 仅在Odoo企业版中存在)应用中
 
 
 

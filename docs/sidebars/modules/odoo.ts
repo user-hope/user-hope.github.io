@@ -70,6 +70,14 @@ const odooSidebars: SidebarObjectOptions = {
                 {
                     text: '三. Mixin',
                     link: 'Mixin.md'
+                },
+                {
+                    text: '四. 国际化',
+                    link: '国际化.md'
+                },
+                {
+                    text: '五. 继承',
+                    link: '继承.md'
                 }
             ]
         }
