@@ -572,6 +572,8 @@ class Channel(models.Model):
 
 然后, 您可以通过定义评级的动作来轻松地将评级与表单视图集成在一起:
 
+> `<![CDATA [  ]]>` 为 xml 里面的特殊语法, 为了方便批量处理特殊字符, 可以使用该语法包裹;
+
 ```xml
 <record id="rating_rating_action_my_model" model="ir.actions.act_window">
     <field name="name">Customer Ratings</field>
