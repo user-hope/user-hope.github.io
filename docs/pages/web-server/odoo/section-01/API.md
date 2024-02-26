@@ -257,7 +257,14 @@ def action_confirm(self):
 
 ## SQL 执行
 
-`env` 上的 `cr` 属性是当前数据库事务的指针, 允许直接执行 `sql`, 无论是对于难以使用 ORM 表达式实现的复杂查询, 还是出于性能原因;
+`env` 上的 `cr` 属性是当前数据库事务的指针, 允许直接执行 `sql`, 无论是对于难以使用 ORM 表达式实现的复杂查询, 还是出于性能原因; `self.env.cr` 中的对象是对 `postgresql` 游标的轻度封装. 以下的方法是最常执行的一部分方法:
+
+- **`execute(query, params)`**: 通过 `params` 参数值元组替换查询中标记为 `%s` 的参数来执行SQL查询;
+- **`fetchone()`**: 从数据库返回一行, 以元组进行封装(即便是仅查询了一个字段);
+- **`fetchall()`**: 以元组列表从数据库中返回所有行;
+- **`dictfetchall()`**: 以列名对值的映射字典列表返回数据库中的所有行;
+
+> 更多 cr 的方法请查看 `odoo\sql_db.py` 源码
 
 ```python
 self.env.cr.execute("some_sql", params)

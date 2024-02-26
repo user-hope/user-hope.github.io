@@ -78,7 +78,11 @@ const odooSidebars: SidebarObjectOptions = {
                 {
                     text: '五. 继承',
                     link: '继承.md'
-                }
+                },
+                {
+                    text: '六. Qweb',
+                    link: 'Qweb.md'
+                },
             ]
         }
     ]
