@@ -56,7 +56,7 @@ const odooSidebars: SidebarObjectOptions = {
             ]
         },
         {
-            text: '第二部分: 进阶技巧',
+            text: '第二部分: 基础扩展',
             prefix: `${WEBSERVER_ODOO_PREFIX}/section-02/`,
             children: [
                 {
@@ -80,8 +80,30 @@ const odooSidebars: SidebarObjectOptions = {
                     link: '继承.md'
                 },
                 {
-                    text: '六. Qweb',
+                    text: '六. QWeb',
                     link: 'Qweb.md'
+                },
+                {
+                    text: '七. Xpath',
+                    link: 'Xpath.md'
+                },
+                {
+                    text: '八. 菜单',
+                    link: '菜单.md'
+                },
+                {
+                    text: '九. 二进制字段与附件',
+                    link: '二进制字段与附件.md'
+                }
+            ]
+        },
+        {
+            text: '第三部分: 前端框架',
+            prefix: `${WEBSERVER_ODOO_PREFIX}/section-03/`,
+            children: [
+                {
+                    text: '一. 框架概述',
+                    link: '框架概述.md'
                 },
             ]
         }

@@ -400,7 +400,229 @@ class Book(models.Model):
                 rec.html_content = ""
 ```
 
+## JavaScript 独有指令
 
+### 定义模板
+
+`t-name` 指令仅可以放在模板文件的顶层; (文档根目标的子级)
+
+```xml
+<templates>
+    <t t-name="template-name">
+        <!-- template code -->
+    </t>
+</templates>
+```
+它不需要其他参数, 但可以与 `<t>` 元素或任何其他元素一起使用, 对于 `<t>` 应该有一个子元素;
+
+模板名称是任意字符串, 当多个模板相关时 (例如称为子模板), 通常使用点分隔的名称来指示层次关系;
+
+### 模板继承
+
+模板继承主要用于: 修改现有的模板, 例如将信息添加到模板; 模板继承是通过使用以下两个指令来执行的:
+- **`t-inherit`**: 是要继承的模板的名称;
+- **`t-inherit-mode`**: 这是继承的行为, 它可以设置为 `primary` 以从父模板创建新的子模板, 也可以设置为 `extension` 以更改父模板;
+
+还可以指定可选的 `t-name` 指令, 如果在 `primary` 模式下, 它将是新创建的模板名称, 否则它将作为注释添加到转换后的木板上, 以帮助回溯继承;
+
+对于继承本身, 更改是使用 `xpaths` 指令完成的, 有关完整的可用指令集, 可以参考 [`XPATH`](/pages/web-server/odoo/section-02/Xpath.html) 文档;
+
+`Primary` 继承(子模板):
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+
+<templates>
+    <t t-name="account.AccountTypeSelection" t-inherit="web.SelectionField" t-inherit-mode="primary" owl="1">
+        <xpath expr="//t[@t-foreach='options']" position="replace">
+            <t t-foreach="hierarchyOptions" t-as="group" t-key="group_index">
+                <optgroup t-att-label="group.name">
+                    <t t-if="!!group.children">
+                        <t t-foreach="group.children" t-as="child" t-key="child[0]">
+                            <option
+                                    t-att-selected="child[0] === value"
+                                    t-att-value="stringify(child[0])"
+                                    t-esc="child[1]"/>
+                        </t>
+                    </t>
+                </optgroup>
+            </t>
+        </xpath>
+    </t>
+</templates>
+```
+
+`Extension` 继承:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-inherit="mail.DiscussSidebar" t-inherit-mode="extension">
+        <xpath expr="//*[@name='beforeCategoryChat']" position="before">
+            <t t-set="categoryLivechat" t-value="discussView.discuss.categoryLivechat"/>
+            <t t-if="categoryLivechat and categoryLivechat.categoryItems.length">
+                <DiscussSidebarCategory
+                    className="'o_DiscussSidebar_category o_DiscussSidebar_categoryLivechat'"
+                    record="categoryLivechat"
+                />
+            </t>
+        </xpath>
+    </t>
+</templates>
+```
+### 旧的继承机制 (已废弃)
+
+模板继承是通过 `t-extend` 指令执行的, 该指令将要更改的模板的名称作为参数;
+
+指令 `t-extend` 在与 `t-name` 组合时将充当主继承, 在单独使用时将充当扩展继承; 
+
+在这两种情况下, 都会使用任意数量的 `t-jquery` 子指令执行更改:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-extend="hr_resume_data_row">
+        <t t-jquery="tr.o_data_row" t-operation="append">
+            <t t-if="data.display_type === 'course'">
+                <td class="o_data_cell container" colspan="2">
+                    <div class="o_resume_line row" t-att-data-id="id">
+                        <div class="o_resume_line_dates col-lg-3">
+                            <span><t t-esc="data.date_end"/></span>
+                        </div>
+                        <div class="o_resume_line_desc col-lg-8">
+                            <h3>
+                                <t t-esc="data.name"/>
+                                <a t-attf-href="#{data.course_url}" t-if="data.course_url"
+                                    style="font-size: 1rem;"
+                                    class="ms-2 fa fa-external-link btn-secondary"/>
+                            </h3>
+                            <t t-if="data.description" t-esc="data.description"/>
+                        </div>
+                    </div>
+                </td>
+            </t>
+        </t>
+    </t>
+</templates>
+```
+`t-jquery` 指令采用 CSS 选择器, 此选择器用于扩展模板来选择应用指定 `t` 操作的上下文节点, 可选的操作有:
+- **`append`**: 节点的主体附加在上下文节点的末尾 (在上下文节点的最后一个子节点之后);
+- **`prepend`**: 节点的主体被添加到上下文节点之前 (插入到上下文节点的第一个子节点之前);
+- **`before`**: 节点的主体插入到上下文节点之前;
+- **`after`**: 节点的主体插入到上下文节点之后;
+- **`inner`**: 节点的主体替换上下文节点的子节点;
+- **`replace`**: 节点的主体用于替换上下文节点本身;
+- **`attributes`**: 节点的主体应该是任意数量的属性元素, 每个属性元素都有一个名称属性和一些文本内容, 上下文节点的命名属性将被设置为指定值 (如果已经存在则替换, 如果不存在则添加);
+
+如果未设置 `t-operation` 属性, 模板主体将被解释为 `javascript` 代码并使用 `this` 上下文节点执行;
+
+### 调试
+
+JavaScript QWeb 实现了一些调试的钩子:
+
+**`t-log`**: 接受一个表达式参数, 在渲染期间计算表达式并使用 `console.log` 记录其结果;
+
+```html
+<t t-set="foo" t-value="42"/>
+<t t-log="foo"/>
+```
+这将会在浏览器的控制台界面输出 `42`;
+
+**`t-debug`**: 在模板渲染期间触发调试器断点;
+
+```html
+<t t-if="a_test">
+    <t t-debug=""/>
+</t>
+```
+
+**`t-js`**: 节点的主体是模板渲染期间执行的 `JavaScript` 代码. 采用上下文参数, 该参数是渲染上下文在 `t-js` 主体中可用的名称;
+
+```html
+<t t-set="foo" t-value="42"/>
+<t t-js="ctx">
+    console.log("Foo is", ctx.foo);
+</t>
+```
+
+### Helpers
+
+**`core.qweb`**, (核心是 `web.core` 模块), `QWeb2.Engine()` 的实例, 加载了所有模块定义的模板文件, 以及对标准帮助器对象 `_`, `_t` 和 JSON 的引用;
+
+`core.qweb.render` 可用于轻松渲染基本模块模板;
+
+### API
+
+**`QWeb2.Engine()`**, QWeb `renderer`, 处理大部分逻辑(加载, 解析, 编译和渲染模板等); `Odoo Web` 在核心模块中为用户实例化一个, 并将它导出到 `core.qweb`, 还将各个模块的所有模板文件加载到该 QWeb 实例中;
+
+- **`QWeb2.Engine.QWeb2.Engine.render(template[, context])`**, 将先前加载的模板渲染为字符串, 使用上下文 (如果提供) 查找模板渲染期间访问的变量 (例如要显示的字符串);
+    - **`template`**: 需要渲染的 `template` 模板名称;
+    - **`context`**: 用于模板渲染的基本命名空间;
+
+```js{26}
+/** @odoo-module **/
+
+import { qweb, _t } from 'web.core';
+import fieldRegistry from 'web.field_registry';
+import { FieldSelection } from 'web.relational_fields';
+
+
+export const HierarchySelection = FieldSelection.extend({
+
+    init: function () {
+        this._super.apply(this, arguments);
+        this.hierarchyGroups = [
+            {name: _t('Balance Sheet')},
+            {name: _t('Assets'), children: this.values.filter(x => x[0] && x[0].startsWith('asset'))},
+            {name: _t('Liabilities'), children: this.values.filter(x => x[0] && x[0].startsWith('liability'))},
+            {name: _t('Equity'), children: this.values.filter(x => x[0] && x[0].startsWith('equity'))},
+            {name: _t('Profit & Loss')},
+            {name: _t('Income'), children: this.values.filter(x => x[0] && x[0].startsWith('income'))},
+            {name: _t('Expense'), children: this.values.filter(x => x[0] && x[0].startsWith('expense'))},
+            {name: _t('Other'), children: this.values.filter(x => x[0] && x[0] == 'off_balance')},
+        ];
+    },
+
+    _renderEdit: function () {
+        this.$el.empty();
+        this.$el.append(qweb.render('accountTypeSelection', {widget: this}));
+        this.$el.val(JSON.stringify(this._getRawValue()));
+    }
+});
+
+fieldRegistry.add("account_type_selection", HierarchySelection);
+```
+
+- **`QWeb2.Engine.QWeb2.Engine.add_template(templates)`**, 在 QWeb 实例中加载模板文件, 模板可以指定为:
+    - **xml字符串**:
+    ```js
+    import core from 'web.core';
+  
+    const QWeb = core.qweb;
+    QWeb.add_template(`
+        <templates>
+            <t t-name="subreceipt">
+                <div>xxx</div>
+            </t>
+        </templates>  
+    `);
+    ```
+    - **xml的文件路径**:
+    ```js
+    import core from 'web.core';
+  
+    const QWeb = core.qweb;
+    QWeb.add_template("/stock/static/src/xml/stock_traceability_report_line.xml");
+    ```
+
+    - **Document 或 Node**:
+    ```js
+    import core from 'web.core';
+    import utils from 'web.utils';
+      
+    const QWeb = core.qweb;
+    QWeb.add_template(utils.json_node_to_xml(this.props.templates));
+    ```
 
 
 
