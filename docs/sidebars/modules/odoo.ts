@@ -105,6 +105,22 @@ const odooSidebars: SidebarObjectOptions = {
                     text: '一. 框架概述',
                     link: '框架概述.md'
                 },
+                {
+                    text: '二. Assets',
+                    link: 'Assets.md'
+                },
+                {
+                    text: '三. JavaScript模块',
+                    link: 'JavaScript模块.md'
+                },
+                {
+                    text: '四. OWL Components',
+                    link: 'OWL Components.md'
+                },
+                {
+                    text: '五. Registries',
+                    link: 'Registries.md'
+                },
             ]
         }
     ]
