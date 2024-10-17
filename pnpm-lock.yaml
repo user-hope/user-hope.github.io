@@ -8,12 +8,12 @@ importers:
 
   .:
     dependencies:
-      chat.js:
-        specifier: ^1.0.2
-        version: 1.0.2
+      chart.js:
+        specifier: ^4.4.5
+        version: 4.4.5
       vuepress-theme-hope:
         specifier: ^2.0.0-beta.250
-        version: 2.0.0-beta.250(@types/js-yaml@4.0.9)(katex@0.16.9)(mermaid@10.6.1)(vuepress-vite@2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8))(vuepress@2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8))
+        version: 2.0.0-beta.250(@types/js-yaml@4.0.9)(chart.js@4.4.5)(katex@0.16.9)(mermaid@10.6.1)(vuepress-vite@2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8))(vuepress@2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8))
     devDependencies:
       '@vuepress/client':
         specifier: ^2.0.0-beta.68
@@ -772,6 +772,9 @@ packages:
   '@jridgewell/trace-mapping@0.3.20':
     resolution: {integrity: sha512-R8LcPeWZol2zR8mmH3JeKQ6QRCFb7XgUhV9ZlGhHLGyg4wpPiPZNQOOWhFZhxKw8u//yTbNGI42Bx/3paXEQ+Q==}
 
+  '@kurkle/color@0.3.2':
+    resolution: {integrity: sha512-fuscdXJ9G1qb7W8VdHi+IwRqij3lBkosAm4ydQtEmbY58OzHXqQhvlxqEkoz0yssNVn38bcpRWgA9PP+OGoisw==}
+
   '@lit-labs/ssr-dom-shim@1.1.2':
     resolution: {integrity: sha512-jnOD+/+dSrfTWYfSXBXlo5l5f0q1UuJo3tkbMDCYA2lKUYq79jaxqtGEvnRoh049nt1vdo1+45RinipU6FGY2g==}
 
@@ -1368,8 +1371,9 @@ packages:
   character-entities@2.0.2:
     resolution: {integrity: sha512-shx7oQ0Awen/BRIdkjkvz54PnEEI/EjwXDSIZp86/KKdbafHh1Df/RYGBhn4hbe2+uKC9FnT5UCEdyPz3ai9hQ==}
 
-  chat.js@1.0.2:
-    resolution: {integrity: sha512-0Q0FnNyFc+xiZoe2dexBbHBDf2F9CSt2bpBgjZ8gv4yghgTrv+G/EB9nsUDdt+lA0F/IOb+PlHPoky1SHDMtqQ==}
+  chart.js@4.4.5:
+    resolution: {integrity: sha512-CVVjg1RYTJV9OCC8WeJPMx8gsV8K6WIyIEQUE3ui4AR9Hfgls9URri6Ja3hyMVBbTF8Q2KFa19PE815gWcWhng==}
+    engines: {pnpm: '>=8'}
 
   cheerio-select@2.1.0:
     resolution: {integrity: sha512-9v9kG0LvzrlcungtnJtpGNxY+fzECQKhK4EGJX2vByejiMX84MFNQw4UxPJl3bFbTMw+Dfs37XaIkCwTZfLh4g==}
@@ -4175,6 +4179,8 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.1
       '@jridgewell/sourcemap-codec': 1.4.15
 
+  '@kurkle/color@0.3.2': {}
+
   '@lit-labs/ssr-dom-shim@1.1.2': {}
 
   '@lit/reactive-element@1.6.3':
@@ -4979,7 +4985,9 @@ snapshots:
 
   character-entities@2.0.2: {}
 
-  chat.js@1.0.2: {}
+  chart.js@4.4.5:
+    dependencies:
+      '@kurkle/color': 0.3.2
 
   cheerio-select@2.1.0:
     dependencies:
@@ -6765,7 +6773,7 @@ snapshots:
       - supports-color
       - typescript
 
-  vuepress-plugin-md-enhance@2.0.0-beta.250(@types/js-yaml@4.0.9)(katex@0.16.9)(mermaid@10.6.1)(vuepress-vite@2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8))(vuepress@2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8)):
+  vuepress-plugin-md-enhance@2.0.0-beta.250(@types/js-yaml@4.0.9)(chart.js@4.4.5)(katex@0.16.9)(mermaid@10.6.1)(vuepress-vite@2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8))(vuepress@2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8)):
     dependencies:
       '@babel/core': 7.23.3
       '@mdit/plugin-align': 0.6.5(markdown-it@13.0.2)
@@ -6802,6 +6810,7 @@ snapshots:
       vuepress-plugin-sass-palette: 2.0.0-beta.250(vuepress-vite@2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8))(vuepress@2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8))
       vuepress-shared: 2.0.0-beta.250(vuepress-vite@2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8))(vuepress@2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8))
     optionalDependencies:
+      chart.js: 4.4.5
       katex: 0.16.9
       mermaid: 10.6.1
       vuepress: 2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8)
@@ -6966,7 +6975,7 @@ snapshots:
       - supports-color
       - typescript
 
-  vuepress-theme-hope@2.0.0-beta.250(@types/js-yaml@4.0.9)(katex@0.16.9)(mermaid@10.6.1)(vuepress-vite@2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8))(vuepress@2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8)):
+  vuepress-theme-hope@2.0.0-beta.250(@types/js-yaml@4.0.9)(chart.js@4.4.5)(katex@0.16.9)(mermaid@10.6.1)(vuepress-vite@2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8))(vuepress@2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8)):
     dependencies:
       '@vuepress/cli': 2.0.0-beta.68
       '@vuepress/client': 2.0.0-beta.68
@@ -6995,7 +7004,7 @@ snapshots:
       vuepress-plugin-copy-code2: 2.0.0-beta.250(vuepress-vite@2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8))(vuepress@2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8))
       vuepress-plugin-copyright2: 2.0.0-beta.250(vuepress-vite@2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8))(vuepress@2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8))
       vuepress-plugin-feed2: 2.0.0-beta.250(vuepress-vite@2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8))(vuepress@2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8))
-      vuepress-plugin-md-enhance: 2.0.0-beta.250(@types/js-yaml@4.0.9)(katex@0.16.9)(mermaid@10.6.1)(vuepress-vite@2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8))(vuepress@2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8))
+      vuepress-plugin-md-enhance: 2.0.0-beta.250(@types/js-yaml@4.0.9)(chart.js@4.4.5)(katex@0.16.9)(mermaid@10.6.1)(vuepress-vite@2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8))(vuepress@2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8))
       vuepress-plugin-photo-swipe: 2.0.0-beta.250(vuepress-vite@2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8))(vuepress@2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8))
       vuepress-plugin-pwa2: 2.0.0-beta.250(vuepress-vite@2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8))(vuepress@2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8))
       vuepress-plugin-reading-time2: 2.0.0-beta.250(vuepress-vite@2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8))(vuepress@2.0.0-beta.68(@types/node@20.9.0)(@vuepress/client@2.0.0-beta.68)(sass@1.69.5)(terser@5.24.0)(vue@3.3.8))

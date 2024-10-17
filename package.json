@@ -19,7 +19,7 @@
     "vuepress-plugin-search-pro": "^2.0.0-beta.250"
   },
   "dependencies": {
-    "vuepress-theme-hope": "^2.0.0-beta.250",
-    "chat.js": "^1.0.2"
+    "chart.js": "^4.4.5",
+    "vuepress-theme-hope": "^2.0.0-beta.250"
   }
 }
