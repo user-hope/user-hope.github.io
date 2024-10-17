@@ -15,7 +15,7 @@ export default defineUserConfig({
         searchProPlugin({
             indexContent: true,
             customFields: [
-                { getter: (page) => page.frontmatter.description, formatter: "描述: $content" }
+                { getter: (page) => page.frontmatter.description as string, formatter: "描述: $content" }
             ]
         })
     ]
