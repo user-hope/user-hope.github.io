@@ -1,5 +1,6 @@
-@import "palette";
-@import "config";
+// place your custom styles here
+@use "palette";
+@use "config";
 
 :root {
     --font-family: variable-exists($font-family);
