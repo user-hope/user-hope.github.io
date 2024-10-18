@@ -1,1 +1,0 @@
-const e=JSON.parse('{"key":"v-f9b6c5cc","path":"/pages/web-server/odoo/section-02/","title":"Section 02","lang":"zh-CN","frontmatter":{"title":"Section 02","article":false,"feed":false,"sitemap":false},"headers":[],"git":{},"readingTime":{"minutes":0,"words":1},"filePathRelative":null,"excerpt":""}');export{e as data};
