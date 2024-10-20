@@ -13,7 +13,7 @@ actions:
     - text: github
       link: https://github.com/user-hope/user-hope.github.io
       type: primary
-copyright: false
-footer: MIT Licensed | Copyright © 2018-present Hope
+footer: ""
+copyright: MIT Licensed | Copyright © 2018-present Hope
 ---
 

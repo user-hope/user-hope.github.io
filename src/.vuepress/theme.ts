@@ -16,6 +16,9 @@ export default hopeTheme({
     repo: "https://github.com/user-hope/user-hope.github.io",
     fullscreen: true,
     breadcrumb: false,
+    displayFooter: false,
+    footer: '',
+    copyright: false,
     navbarLayout: {
         start: ['Brand'],
         end: ['Links', 'Repo', 'Outlook', 'Search'],
@@ -28,8 +31,8 @@ export default hopeTheme({
         "/": {
             navbar: Navbar,
             sidebar: Sidebar,
-            footer: "默认页脚",
-            displayFooter: true,
+            footer: "",
+            displayFooter: false,
             metaLocales: {
                 editLink: "在 GitHub 上编辑此页",
             },
