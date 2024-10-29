@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 import { hopeTheme } from "vuepress-theme-hope";
 
 import Navbar from "./navbar/index.js";
@@ -41,10 +43,12 @@ export default hopeTheme({
     plugins: {
         searchPro: {
             indexContent: true,
-            autoSuggestions: true,
+            autoSuggestions: false,
+            resultHistoryCount: 5,
+            queryHistoryCount: 5,
             customFields: [
                 { getter: (page) => page.frontmatter.description as string, formatter: "描述: $content" }
-            ]
+            ],
         },
         // 评论 https://theme-hope.vuejs.press/zh/guide/feature/comment.html
         // https://giscus.app/zh-CN
