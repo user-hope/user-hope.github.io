@@ -170,7 +170,49 @@ def button_show_effect(self):
     }
 ```
 
-#### rainbow_man 实现
+### Main components registry
+
+主组件注册表 (`main_components`) 可用于添加顶级组件, 在 web 客户端中有一个 `MainComponentsContainer` 组件作为其直接子项; 
+
+Main components registry 的核心目标是:
+- 集中管理核心UI组件: 将 odoo web 客户端中的所有重要的, 可复用的 UI 组件(如视图管理器, 动作管理器, 通知服务, 路由服务等) 都注册到同一个地方;
+- 提供组件访问接口: 允许其他模块或组件通过一个统一的接口来获取和使用这些核心组件的实例;
+- 支持依赖注入:  结合 Odoo 的服务机制, Main Components Registry 使得组件可以声明它们所依赖的其他核心组件, Odoo 框架会自动将这些依赖注入到组件中;
+- 模块化和可扩展性: 进 Odoo Web 客户端的模块化设计, 使得开发者可以更容易地替换、扩展或添加新的核心组件;
+- 生命周期管理: 框架可以更好地管理这些核心组件的生命周期;
+
+
+Odoo 框架在启动时, 会将所有预定义的核心组件 (例如 action 服务、dialog 服务、notification 服务、router 服务、各种视图类型等) 注册到 Main Components Registry 中. 这些组件通常是 Odoo Web 客户端的 "服务" 或 "管理器"; 
+
+当一个 Odoo 组件需要使用另一个核心组件的功能时, 就可以通过 `setup()` 方法里面使用 `useService()` 来获取其他的功能, 而不用耦合的使用 `import` 导入:
+
+```js
+import { Component, useState } from "@odoo/owl";
+import { useService } from "@web/core/utils/hooks"; // 引入 useService hook
+
+class MyCustomComponent extends Component {
+    setup() {
+        super.setup();
+        this.notification = useService("notification"); // 声明依赖 notification 服务
+        this.action = useService("action"); // 声明依赖 action 服务
+        this.state = useState({ count: 0 });
+    }
+
+    onClick() {
+        this.state.count++;
+        this.notification.add(`Count is now: ${this.state.count}`, { type: 'info' });
+        if (this.state.count > 5) {
+            this.action.doAction({
+                type: 'ir.actions.client',
+                tag: 'my_custom_client_action',
+            });
+        }
+    }
+}
+```
+
+
+
 
 
 
