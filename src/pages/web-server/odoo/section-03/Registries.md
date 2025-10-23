@@ -70,7 +70,7 @@ const viewRegistry = registry.category("views");
 
 ### Effect registry
 
-`effects registry` 包含所有的可用效果的实现, 更多详细信息请参考 [Effect Service]()
+`effects registry` 包含所有的可用效果的实现, 更多详细信息请参考 [Effect Service](/pages/web-server/odoo/section-03/Services.html#effect-service)
 
 `effects` 是可以临时显示在页面顶图的图形元素, 通常是为了向用户提供发生了有趣的事情的反馈, 例如: crm 里面的阶段变更为 "赢得" 的时候, 会出现一个有趣的彩虹动画;
 
@@ -211,9 +211,682 @@ class MyCustomComponent extends Component {
 }
 ```
 
+### Service registry
 
+Service 服务类注册; 包含由 odoo 框架激活的所有服务; 声明方法:
 
+```js
+import { registry } from "@web/core/registry";
 
+const myService = {
+    dependencies: [...],
+    start(env, deps) {
+        // some code here
+    }
+};
+
+registry.category("services").add("myService", myService);
+```
+在 odoo 内部自定了很多的 service, 可以方便我们做客户端的开发, 例如: orm 的定义;
+
+```js
+import { registry } from "@web/core/registry";
+import { rpc } from "@web/core/network/rpc";
+import { user } from "@web/core/user";
+
+export const x2ManyCommands = {
+    // (0, virtualID | false, { values })
+    CREATE: 0,
+    create(virtualID, values) {
+        delete values.id;
+        return [x2ManyCommands.CREATE, virtualID || false, values];
+    },
+    // (1, id, { values })
+    UPDATE: 1,
+    update(id, values) {
+        delete values.id;
+        return [x2ManyCommands.UPDATE, id, values];
+    },
+    // (2, id[, _])
+    DELETE: 2,
+    delete(id) {
+        return [x2ManyCommands.DELETE, id, false];
+    },
+    // (3, id[, _]) removes relation, but not linked record itself
+    UNLINK: 3,
+    unlink(id) {
+        return [x2ManyCommands.UNLINK, id, false];
+    },
+    // (4, id[, _])
+    LINK: 4,
+    link(id) {
+        return [x2ManyCommands.LINK, id, false];
+    },
+    // (5[, _[, _]])
+    CLEAR: 5,
+    clear() {
+        return [x2ManyCommands.CLEAR, false, false];
+    },
+    // (6, _, ids) replaces all linked records with provided ids
+    SET: 6,
+    set(ids) {
+        return [x2ManyCommands.SET, false, ids];
+    },
+};
+
+function validateModel(value) {
+    if (typeof value !== "string" || value.length === 0) {
+        throw new Error(`Invalid model name: ${value}`);
+    }
+}
+function validatePrimitiveList(name, type, value) {
+    if (!Array.isArray(value) || value.some((val) => typeof val !== type)) {
+        throw new Error(`Invalid ${name} list: ${value}`);
+    }
+}
+function validateObject(name, obj) {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        throw new Error(`${name} should be an object`);
+    }
+}
+function validateArray(name, array) {
+    if (!Array.isArray(array)) {
+        throw new Error(`${name} should be an array`);
+    }
+}
+
+export const UPDATE_METHODS = [
+    "unlink",
+    "create",
+    "write",
+    "web_save",
+    "action_archive",
+    "action_unarchive",
+];
+
+export class ORM {
+    constructor() {
+        this.rpc = rpc; // to be overridable by the SampleORM
+        /** @protected */
+        this._silent = false;
+    }
+
+    /** @returns {ORM} */
+    get silent() {
+        return Object.assign(Object.create(this), { _silent: true });
+    }
+
+    /**
+     * @param {string} model
+     * @param {string} method
+     * @param {any[]} [args=[]]
+     * @param {any} [kwargs={}]
+     * @returns {Promise<any>}
+     */
+    call(model, method, args = [], kwargs = {}) {
+        validateModel(model);
+        const url = `/web/dataset/call_kw/${model}/${method}`;
+        const fullContext = Object.assign({}, user.context, kwargs.context || {});
+        const fullKwargs = Object.assign({}, kwargs, { context: fullContext });
+        const params = {
+            model,
+            method,
+            args,
+            kwargs: fullKwargs,
+        };
+        return this.rpc(url, params, { silent: this._silent });
+    }
+
+    /**
+     * @param {string} model
+     * @param {any[]} records
+     * @param {any} [kwargs=[]]
+     * @returns {Promise<number>}
+     */
+    create(model, records, kwargs = {}) {
+        validateArray("records", records);
+        for (const record of records) {
+            validateObject("record", record);
+        }
+        return this.call(model, "create", [records], kwargs);
+    }
+
+    /**
+     * @param {string} model
+     * @param {number[]} ids
+     * @param {string[]} fields
+     * @param {any} [kwargs={}]
+     * @returns {Promise<any[]>}
+     */
+    read(model, ids, fields, kwargs = {}) {
+        validatePrimitiveList("ids", "number", ids);
+        if (fields) {
+            validatePrimitiveList("fields", "string", fields);
+        }
+        if (!ids.length) {
+            return Promise.resolve([]);
+        }
+        return this.call(model, "read", [ids, fields], kwargs);
+    }
+
+    /**
+     * @param {string} model
+     * @param {import("@web/core/domain").DomainListRepr} domain
+     * @param {string[]} fields
+     * @param {string[]} groupby
+     * @param {any} [kwargs={}]
+     * @returns {Promise<any[]>}
+     */
+    readGroup(model, domain, fields, groupby, kwargs = {}) {
+        validateArray("domain", domain);
+        validatePrimitiveList("fields", "string", fields);
+        validatePrimitiveList("groupby", "string", groupby);
+        groupby = [...new Set(groupby)];
+        return this.call(model, "read_group", [], { ...kwargs, domain, fields, groupby });
+    }
+
+    /**
+     * @param {string} model
+     * @param {import("@web/core/domain").DomainListRepr} domain
+     * @param {any} [kwargs={}]
+     * @returns {Promise<any[]>}
+     */
+    search(model, domain, kwargs = {}) {
+        validateArray("domain", domain);
+        return this.call(model, "search", [domain], kwargs);
+    }
+
+    /**
+     * @param {string} model
+     * @param {import("@web/core/domain").DomainListRepr} domain
+     * @param {string[]} fields
+     * @param {any} [kwargs={}]
+     * @returns {Promise<any[]>}
+     */
+    searchRead(model, domain, fields, kwargs = {}) {
+        validateArray("domain", domain);
+        if (fields) {
+            validatePrimitiveList("fields", "string", fields);
+        }
+        return this.call(model, "search_read", [], { ...kwargs, domain, fields });
+    }
+
+    /**
+     * @param {string} model
+     * @param {import("@web/core/domain").DomainListRepr} domain
+     * @param {any} [kwargs={}]
+     * @returns {Promise<number>}
+     */
+    searchCount(model, domain, kwargs = {}) {
+        validateArray("domain", domain);
+        return this.call(model, "search_count", [domain], kwargs);
+    }
+
+    /**
+     * @param {string} model
+     * @param {number[]} ids
+     * @param {any} [kwargs={}]
+     * @returns {Promise<boolean>}
+     */
+    unlink(model, ids, kwargs = {}) {
+        validatePrimitiveList("ids", "number", ids);
+        if (!ids.length) {
+            return Promise.resolve(true);
+        }
+        return this.call(model, "unlink", [ids], kwargs);
+    }
+
+    /**
+     * @param {string} model
+     * @param {import("@web/core/domain").DomainListRepr} domain
+     * @param {string[]} fields
+     * @param {string[]} groupby
+     * @param {any} [kwargs={}]
+     * @returns {Promise<any[]>}
+     */
+    webReadGroup(model, domain, fields, groupby, kwargs = {}) {
+        validateArray("domain", domain);
+        validatePrimitiveList("fields", "string", fields);
+        validatePrimitiveList("groupby", "string", groupby);
+        return this.call(model, "web_read_group", [], {
+            ...kwargs,
+            groupby,
+            domain,
+            fields,
+        });
+    }
+
+    /**
+     * @param {string} model
+     * @param {number[]} ids
+     * @param {any} [kwargs={}]
+     * @param {Object} [kwargs.specification]
+     * @param {Object} [kwargs.context]
+     * @returns {Promise<any[]>}
+     */
+    webRead(model, ids, kwargs = {}) {
+        validatePrimitiveList("ids", "number", ids);
+        return this.call(model, "web_read", [ids], kwargs);
+    }
+
+    /**
+     * @param {string} model
+     * @param {import("@web/core/domain").DomainListRepr} domain
+     * @param {any} [kwargs={}]
+     * @returns {Promise<any[]>}
+     */
+    webSearchRead(model, domain, kwargs = {}) {
+        validateArray("domain", domain);
+        return this.call(model, "web_search_read", [], { ...kwargs, domain });
+    }
+
+    /**
+     * @param {string} model
+     * @param {number[]} ids
+     * @param {any} data
+     * @param {any} [kwargs={}]
+     * @returns {Promise<boolean>}
+     */
+    write(model, ids, data, kwargs = {}) {
+        validatePrimitiveList("ids", "number", ids);
+        validateObject("data", data);
+        return this.call(model, "write", [ids, data], kwargs);
+    }
+
+    /**
+     * @param {string} model
+     * @param {number[]} ids
+     * @param {any} data
+     * @param {any} [kwargs={}]
+     * @param {Object} [kwargs.specification]
+     * @param {Object} [kwargs.context]
+     * @returns {Promise<any[]>}
+     */
+    webSave(model, ids, data, kwargs = {}) {
+        validatePrimitiveList("ids", "number", ids);
+        validateObject("data", data);
+        return this.call(model, "web_save", [ids, data], kwargs);
+    }
+}
+
+/**
+ * Note:
+ *
+ * when we will need a way to configure a rpc (for example, to setup a "shadow"
+ * flag, or some way of not displaying errors), we can use the following api:
+ *
+ * this.orm = useService('orm');
+ *
+ * ...
+ *
+ * const result = await this.orm.withOption({shadow: true}).read('res.partner', [id]);
+ */
+export const ormService = {
+    async: [
+        "call",
+        "create",
+        "nameGet",
+        "read",
+        "readGroup",
+        "search",
+        "searchRead",
+        "unlink",
+        "webSearchRead",
+        "write",
+    ],
+    start() {
+        return new ORM();
+    },
+};
+
+registry.category("services").add("orm", ormService);
+```
+然后我们在任何小部件里面, 都可以使用 `useService` 来进行使用:
+
+```js{26}
+/** @odoo-module **/
+
+import { _t } from "@web/core/l10n/translation";
+import { registry } from "@web/core/registry";
+import { usePopover } from "@web/core/popover/popover_hook";
+import { useService } from "@web/core/utils/hooks";
+import { localization } from "@web/core/l10n/localization";
+import { formatDate, deserializeDate } from "@web/core/l10n/dates";
+
+import { formatMonetary } from "@web/views/fields/formatters";
+import { standardFieldProps } from "@web/views/fields/standard_field_props";
+import { Component } from "@odoo/owl";
+
+class AccountPaymentPopOver extends Component {
+    static props = { "*": { optional: true } };
+    static template = "account.AccountPaymentPopOver";
+}
+
+export class AccountPaymentField extends Component {
+    static props = { ...standardFieldProps };
+    static template = "account.AccountPaymentField";
+
+    setup() {
+        const position = localization.direction === "rtl" ? "bottom" : "left";
+        this.popover = usePopover(AccountPaymentPopOver, { position });
+        this.orm = useService("orm");
+        this.action = useService("action");
+    }
+
+    getInfo() {
+        const info = this.props.record.data[this.props.name] || {
+            content: [],
+            outstanding: false,
+            title: "",
+            move_id: this.props.record.resId,
+        };
+        for (const [key, value] of Object.entries(info.content)) {
+            value.index = key;
+            value.amount_formatted = formatMonetary(value.amount, {
+                currencyId: value.currency_id,
+            });
+            if (value.date) {
+                value.formattedDate = formatDate(deserializeDate(value.date))
+            }
+        }
+        return {
+            lines: info.content,
+            outstanding: info.outstanding,
+            title: info.title,
+            moveId: info.move_id,
+        };
+    }
+
+    onInfoClick(ev, line) {
+        this.popover.open(ev.currentTarget, {
+            title: _t("Journal Entry Info"),
+            ...line,
+            _onRemoveMoveReconcile: this.removeMoveReconcile.bind(this),
+            _onOpenMove: this.openMove.bind(this),
+        });
+    }
+
+    async assignOutstandingCredit(moveId, id) {
+        await this.orm.call(this.props.record.resModel, 'js_assign_outstanding_line', [moveId, id], {});
+        await this.props.record.model.root.load();
+    }
+
+    async removeMoveReconcile(moveId, partialId) {
+        this.popover.close();
+        await this.orm.call(this.props.record.resModel, 'js_remove_outstanding_partial', [moveId, partialId], {});
+        await this.props.record.model.root.load();
+    }
+
+    async openMove(moveId) {
+        const action = await this.orm.call(this.props.record.resModel, 'action_open_business_doc', [moveId], {});
+        this.action.doAction(action);
+    }
+}
+
+export const accountPaymentField = {
+    component: AccountPaymentField,
+    supportedTypes: ["char"],
+};
+
+registry.category("fields").add("payment", accountPaymentField);
+```
+
+### Systray registry
+
+`systray` 系统托盘是导航栏右侧的区域, 其中包含各种小组件, 通常显示某种信息(如: 未读消息的数量), 通知或是让用户与他们进行交互
+
+一个 `systray` 应该包含下面这些参数:
+
+- **props**: 应该传入给组件的 props;
+- **Component**: class 组件, 它的根元素应该是一个 `<li>` 标签, 否则可能没办法正确的设置样式;
+- **isDisplayed**: 一个接受 env 并返回 boolean 值的函数, 如果返回 true, 则显示系统托盘, 否则将不显示;
+
+```js
+
+import { registry } from "@web/core/registry";
+import { Transition } from "@web/core/transition";
+import { user } from "@web/core/user";
+import { useBus, useService } from "@web/core/utils/hooks";
+import { BurgerUserMenu } from "./burger_user_menu/burger_user_menu";
+import { MobileSwitchCompanyMenu } from "./mobile_switch_company_menu/mobile_switch_company_menu";
+
+import { Component, useState } from "@odoo/owl";
+
+const SWIPE_ACTIVATION_THRESHOLD = 100;
+
+export class BurgerMenu extends Component {
+    static template = "web.BurgerMenu";
+    static props = {};
+    static components = {
+        BurgerUserMenu,
+        MobileSwitchCompanyMenu,
+        Transition,
+    };
+
+    setup() {
+        this.company = useService("company");
+        this.user = user;
+        this.state = useState({
+            isBurgerOpened: false,
+        });
+        this.swipeStartX = null;
+        useBus(this.env.bus, "HOME-MENU:TOGGLED", () => {
+            this._closeBurger();
+        });
+        useBus(this.env.bus, "ACTION_MANAGER:UPDATE", ({ detail: req }) => {
+            if (req.id) {
+                this._closeBurger();
+            }
+        });
+    }
+    _closeBurger() {
+        this.state.isBurgerOpened = false;
+    }
+    _openBurger() {
+        this.state.isBurgerOpened = true;
+    }
+    _onSwipeStart(ev) {
+        this.swipeStartX = ev.changedTouches[0].clientX;
+    }
+    _onSwipeEnd(ev) {
+        if (!this.swipeStartX) {
+            return;
+        }
+        const deltaX = ev.changedTouches[0].clientX - this.swipeStartX;
+        if (deltaX < SWIPE_ACTIVATION_THRESHOLD) {
+            return;
+        }
+        this._closeBurger();
+        this.swipeStartX = null;
+    }
+}
+
+const systrayItem = {
+    Component: BurgerMenu,
+};
+
+registry.category("systray").add("burger_menu", systrayItem, { sequence: 0 });
+```
+
+> 示例为系统托盘里面的切换 debug 模式的按钮;
+
+### Usermenu registry
+
+用户菜单注册, 分类为 `user_menuitems`, 包含打开用户菜单时显示的所有菜单项 (右上角带有用户名的导航栏元素); 
+
+用户带单由一个函数定义, 该函数会回调回来一个 env 并需要返回一个普通的 object, 其中包含如下信息:
+
+- **description**: 菜单项的文本展示;
+- **href**: 如果给定 href 选项, 则该菜单会被放在具有指定 href 的 a 标签中;
+- **callback**: 在当前菜单被选中的时候执行的回调函数;
+- **hide**: 是否隐藏此菜单, 默认值为 false;
+- **sequence**: 排序, 默认值为 100;
+
+```js
+import { Component, markup } from "@odoo/owl";
+import { isMacOS } from "@web/core/browser/feature_detection";
+import { _t } from "@web/core/l10n/translation";
+import { rpc } from "@web/core/network/rpc";
+import { user } from "@web/core/user";
+import { escape } from "@web/core/utils/strings";
+import { session } from "@web/session";
+import { browser } from "../../core/browser/browser";
+import { registry } from "../../core/registry";
+
+function documentationItem(env) {
+    const documentationURL = "https://www.odoo.com/documentation/18.0";
+    return {
+        type: "item",
+        id: "documentation",
+        description: _t("Documentation"),
+        href: documentationURL,
+        callback: () => {
+            browser.open(documentationURL, "_blank");
+        },
+        sequence: 10,
+    };
+}
+
+function supportItem(env) {
+    const url = session.support_url;
+    return {
+        type: "item",
+        id: "support",
+        description: _t("Support"),
+        href: url,
+        callback: () => {
+            browser.open(url, "_blank");
+        },
+        sequence: 20,
+    };
+}
+
+class ShortcutsFooterComponent extends Component {
+    static template = "web.UserMenu.ShortcutsFooterComponent";
+    static props = {
+        switchNamespace: { type: Function, optional: true },
+    };
+    setup() {
+        this.runShortcutKey = isMacOS() ? "CONTROL" : "ALT";
+    }
+}
+
+function shortCutsItem(env) {
+    const translatedText = _t("Shortcuts");
+    return {
+        type: "item",
+        id: "shortcuts",
+        hide: env.isSmall,
+        description: markup(
+            `<div class="d-flex align-items-center justify-content-between p-0 w-100">
+                <span>${escape(translatedText)}</span>
+                <span class="fw-bold">${isMacOS() ? "CMD" : "CTRL"}+K</span>
+            </div>`
+        ),
+        callback: () => {
+            env.services.command.openMainPalette({ FooterComponent: ShortcutsFooterComponent });
+        },
+        sequence: 30,
+    };
+}
+
+function separator() {
+    return {
+        type: "separator",
+        sequence: 40,
+    };
+}
+
+export function preferencesItem(env) {
+    return {
+        type: "item",
+        id: "settings",
+        description: _t("Preferences"),
+        callback: async function () {
+            const actionDescription = await env.services.orm.call("res.users", "action_get");
+            actionDescription.res_id = user.userId;
+            env.services.action.doAction(actionDescription);
+        },
+        sequence: 50,
+    };
+}
+
+export function odooAccountItem(env) {
+    return {
+        type: "item",
+        id: "account",
+        description: _t("My Odoo.com account"),
+        callback: () => {
+            rpc("/web/session/account")
+                .then((url) => {
+                    browser.open(url, "_blank");
+                })
+                .catch(() => {
+                    browser.open("https://accounts.odoo.com/account", "_blank");
+                });
+        },
+        sequence: 60,
+    };
+}
+
+function installPWAItem(env) {
+    let description = _t("Install App");
+    let callback = () => env.services.pwa.show();
+    let show = () => env.services.pwa.isAvailable;
+    const currentApp = env.services.menu.getCurrentApp();
+    if (currentApp && ["barcode", "field-service", "shop-floor"].includes(currentApp.actionPath)) {
+        // While the feature could work with all apps, we have decided to only
+        // support the installation of the apps contained in this list
+        // The list can grow in the future, by simply adding their path
+        description = _t("Install %s", currentApp.name);
+        callback = () => {
+            window.open(
+                `/scoped_app?app_id=${currentApp.webIcon.split(",")[0]}&path=${encodeURIComponent(
+                    "scoped_app/" + currentApp.actionPath
+                )}`
+            );
+        };
+        show = () => !env.services.pwa.isScopedApp;
+    }
+    return {
+        type: "item",
+        id: "install_pwa",
+        description,
+        callback,
+        show,
+        sequence: 65,
+    };
+}
+
+function logOutItem(env) {
+    let route = "/web/session/logout";
+    if (env.services.pwa.isScopedApp) {
+        route += `?redirect=${encodeURIComponent(env.services.pwa.startUrl)}`;
+    }
+    return {
+        type: "item",
+        id: "logout",
+        description: _t("Log out"),
+        href: `${browser.location.origin}${route}`,
+        callback: () => {
+            browser.location.href = route;
+        },
+        sequence: 70,
+    };
+}
+
+registry
+    .category("user_menuitems")
+    .add("documentation", documentationItem)
+    .add("support", supportItem)
+    .add("shortcuts", shortCutsItem)
+    .add("separator", separator)
+    .add("profile", preferencesItem)
+    .add("odoo_account", odooAccountItem)
+    .add("install_pwa", installPWAItem)
+    .add("log_out", logOutItem);
+
+```
 
 
 
