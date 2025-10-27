@@ -3,7 +3,7 @@ headerDepth: 4
 prev:
   link: /pages/web-server/odoo/section-03/Registries.md
 next:
-  link: /pages/web-server/odoo/section-03/Services.md
+  link: /pages/web-server/odoo/section-03/Hooks.md
 ---
 
 ## Service

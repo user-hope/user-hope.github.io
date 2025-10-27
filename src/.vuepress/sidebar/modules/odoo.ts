@@ -125,6 +125,10 @@ const odooSidebars: SidebarObjectOptions = {
                     text: '六. Services',
                     link: 'Services.md'
                 },
+                {
+                    text: '七. Hooks',
+                    link: 'Hooks.md'
+                },
             ]
         }
     ]
