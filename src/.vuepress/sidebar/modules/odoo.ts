@@ -129,6 +129,14 @@ const odooSidebars: SidebarObjectOptions = {
                     text: '七. Hooks',
                     link: 'Hooks.md'
                 },
+                {
+                    text: '八. Patch',
+                    link: 'Patch.md'
+                },
+                {
+                    text: '九. Javascript指南',
+                    link: 'Javascript指南.md'
+                },
             ]
         }
     ]
