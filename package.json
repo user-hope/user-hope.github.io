@@ -19,7 +19,6 @@
     "@vuepress/plugin-markdown-math": "2.0.0-rc.55",
     "@vuepress/plugin-markdown-tab": "2.0.0-rc.55",
     "@vuepress/plugin-prismjs": "2.0.0-rc.55",
-    "sass-embedded": "^1.79.4",
     "vue": "^3.5.10",
     "vuepress": "2.0.0-rc.17",
     "vuepress-plugin-search-pro": "2.0.0-rc.57",
@@ -28,6 +27,7 @@
   "dependencies": {
     "echarts": "^5.5.1",
     "katex": "^0.16.11",
+    "sass": "^1.93.2",
     "vuepress-plugin-md-enhance": "2.0.0-rc.57"
   }
 }
