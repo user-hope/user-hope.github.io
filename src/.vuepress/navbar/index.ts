@@ -8,8 +8,12 @@ export default navbar([
         text: '服务端开发',
         children: [
             {
-                text: 'odoo',
+                text: 'Odoo',
                 link: '/pages/web-server/odoo/'
+            },
+            {
+                text: 'FastAPI',
+                link: '/pages/web-server/fastapi/'
             }
         ]
     }
